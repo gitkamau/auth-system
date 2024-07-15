@@ -3,12 +3,12 @@ ReadMe.md
 This involves implementing a comprehensive authentication and authorization system for a web application. Below are the key components and steps involved:
 
 # User Registration Process
-Students: Implement a registration form that collects necessary details (e.g., name, email, university, major) and verifies their email address. Optionally, integrate with university databases to auto-verify student status.
-University Admins: Require email domain verification (e.g., only emails from university domains) and manual approval by super-admins.
-Company Recruiters: Implement a business email verification process, requiring additional company information and manual verification by platform admins.
+Students: Implement a registration form that collects necessary details (e.g., name, email, university, major) and verifies their email address.
+University Admins: Require email verification.
+Company Recruiters: Implement a business email verification process.
 
 # Login Mechanisms
-Email/Password: Use secure password storage techniques (e.g., bcrypt) and implement account lockout mechanisms to prevent brute-force attacks.
+Email/Password: Use secure password storage techniques and implement account lockout mechanisms to prevent brute-force attacks.
 OAuth:  Utilize Laravel Passport for OAuth and SSO implementation.
 
 # Role-Based Access Control (RBAC)
