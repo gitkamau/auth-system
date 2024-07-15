@@ -26,7 +26,7 @@ return [
     |
     */
 
-    'env' => env('APP_ENV', 'production'),
+    'env' => env('APP_ENV', 'local'),
 
     /*
     |--------------------------------------------------------------------------
@@ -131,9 +131,23 @@ return [
         Illuminate\Filesystem\FilesystemServiceProvider::class,
         Illuminate\Cache\CacheServiceProvider::class,
         Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+        Illuminate\Database\DatabaseServiceProvider::class,
+        Illuminate\View\ViewServiceProvider::class,
+        Illuminate\Encryption\EncryptionServiceProvider::class,
+        Illuminate\Session\SessionServiceProvider::class,
+        Illuminate\Hashing\HashServiceProvider::class,
+        Illuminate\Translation\TranslationServiceProvider::class,
+        Illuminate\Validation\ValidationServiceProvider::class,
+        Illuminate\Notifications\NotificationServiceProvider::class,
+        Illuminate\Bus\BusServiceProvider::class,
+        Illuminate\Mail\MailServiceProvider::class,
 
         // Application Service Providers
-        Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+        App\Providers\RouteServiceProvider::class,
+        App\Providers\AuthServiceProvider::class,
+        Laravel\Passport\PassportServiceProvider::class,
+        App\Providers\FoundationServiceProvider::class,
+        // Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
     ],
 
 ];

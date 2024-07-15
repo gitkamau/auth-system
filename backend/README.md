@@ -6,3 +6,4 @@
  - composer install
 # Run the application
  - php artisan serve
+

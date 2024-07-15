@@ -6,11 +6,13 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Tymon\JWTAuth\Contracts\JWTSubject;
+use Laravel\Passport\HasApiTokens;
+use App\Models\Role;
+// use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements  MustVerifyEmail, JWTSubject
+class User extends Authenticatable implements  MustVerifyEmail
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -18,9 +20,14 @@ class User extends Authenticatable implements  MustVerifyEmail, JWTSubject
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
         'password',
+        'role' => 'required|in:student,university_admin,recruiter',
+        'university' => 'required_if:role,student,university_admin',
+        'major' => 'required_if:role,student',
+        'company' => 'required_if:role,recruiter',
     ];
 
     /**
@@ -46,23 +53,23 @@ class User extends Authenticatable implements  MustVerifyEmail, JWTSubject
         ];
     }
 
-        /**
-     * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
+    /**
+     * The roles that belong to the user.
      */
-    public function getJWTIdentifier()
+    public function roles()
     {
-        return $this->getKey();
+        return $this->belongsToMany(Role::class);
     }
 
     /**
-     * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
+     * Check if the user has a role.
      */
-    public function getJWTCustomClaims()
+    public function hasRole($role)
     {
-        return [];
+        if (is_string($role)) {
+            return $this->roles()->where('name', $role)->exists();
+        }
+
+        return $this->roles()->whereIn('name', $role)->exists();
     }
 }
