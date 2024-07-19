@@ -26,7 +26,7 @@ Prerequisites
 
 ## Step-by-Step Backend Setup
 1. Clone the repository to your local machine:
-- git clone https://github.com/mary-kamau/auth-system.git
+- git clone https://github.com/gitkamau/auth-system.git
 - cd backend
 
 2. Install Dependencies
