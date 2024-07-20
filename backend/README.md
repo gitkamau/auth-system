@@ -1,5 +1,5 @@
 # Clone the repository
- - git clone https://github.com/mary-kamau/auth-system.git
+ - git clone https://github.com/gitkamau/auth-system.git
 # Generate Application Key
  - php artisan key:generate
 # Install Dependencies
