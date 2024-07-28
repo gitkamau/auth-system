@@ -20,4 +20,17 @@ class Authenticate extends Middleware
             return route('login');
         }
     }
+
+    protected function authenticate($request, array $guards)
+    {
+        Log::info('Authenticating request...', ['guards' => $guards]);
+
+        if ($this->auth->guard('api')->check()) {
+            Log::info('User is authenticated.');
+            return $this->auth->shouldUse('api');
+        }
+
+        Log::warning('User is not authenticated.', ['request' => $request->all()]);
+        $this->unauthenticated($request, $guards);
+    }
 }

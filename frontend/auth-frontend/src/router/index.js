@@ -4,15 +4,15 @@ import HomePage from '@/components/HomePage.vue';
 import LoginPage from '@/views/auth/LoginPage.vue';
 import RegisterPage from '@/views/auth/RegisterPage.vue';
 import ForgotPasswordPage from '@/views/auth/ForgotPasswordPage.vue';
-import CompanyDashboard from '@/views/dashboards/CompanyDashboard.vue';
-import UniversityDashboard from '@/views/dashboards/UniversityDashboard.vue';
-import StudentDashboard from '@/views/dashboards/StudentDashboard.vue';
+import MfaSetup from '@/components/MfaSetup.vue';
+// import MfaVerify from '@/components/MfaVerify.vue';
 
 const routes = [
   {
     path: '/',
     name: 'home',
     component: HomePage,
+    meta: { requiresAuth: true}
   },
   {
     path: '/login',
@@ -32,23 +32,11 @@ const routes = [
     meta: { requiresAuth: false }
   },
   {
-    path: '/company-dashboard',
-    name: 'company-dashboard',
-    component: CompanyDashboard,
-    meta: { requiresAuth: true }
+    path: '/mfa-verify',
+    name: 'MfaVerify',
+    component: MfaSetup,
+    meta: { requiresAuth: true}
   },
-  {
-    path: '/university-dashboard',
-    name: 'university-dashboard',
-    component: UniversityDashboard,
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/student-dashboard',
-    name: 'student-dashboard',
-    component: StudentDashboard,
-    meta: { requiresAuth: true }
-  }
 ];
 
 const router = createRouter({
@@ -61,10 +49,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = store.state.authenticated && localStorage.getItem("access_token");
+  const isMfaVerified = store.state.mfa_code;
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
-      next({ name: 'login' });
+      next('/login');
+    } else if (isAuthenticated && !isMfaVerified && to.path !== '/mfa-verify') {
+      next('/mfa-verify');
     } else {
       next();
     }
@@ -72,5 +63,6 @@ router.beforeEach((to, from, next) => {
     next();
   }
 });
+
 
 export default router;

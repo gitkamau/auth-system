@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\ApiController;
@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Laravel\Passport\Passport;
 use Illuminate\Support\Facades\Http;
 use Laravel\Passport\Client;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 
 class AuthController extends ApiController
 {
@@ -34,6 +36,7 @@ class AuthController extends ApiController
             'university' => ['required_if:role,student,university_admin'],
             'major' => ['required_if:role,student'],
             'company' => ['required_if:role,recruiter'],
+            'phone_number' => ['required']
         ]);
     }
 
@@ -49,6 +52,8 @@ class AuthController extends ApiController
             'university' => $data['university'] ?? null,
             'major' => $data['major'] ?? null,
             'company' => $data['company'] ?? null,
+            'phone_number' => $data['phone_number'],
+            'is_mfa_enabled' => false,
         ]);
     }
 
@@ -136,6 +141,52 @@ class AuthController extends ApiController
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
+
+    public function updateUser(Request $request, $id)
+    {
+        try {
+            // Retrieve the user and check if it exists
+            $user = User::findOrFail($id);
+
+            // Check if the authenticated user is allowed to update the specified user
+            if (auth()->user()->id !== $user->id && !$user->hasRole('admin')) {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            // Validate the incoming request data
+            $validator = Validator::make($request->all(), [
+                'first_name' => 'sometimes|required|string|max:255',
+                'last_name' => 'sometimes|required|string|max:255',
+                'email' => 'sometimes|required|string|email|max:255|unique:users,email,' . $user->id,
+                'password' => 'sometimes|required|string|min:8|confirmed',
+                'role' => 'sometimes|required|in:student,university_admin,recruiter',
+                'university' => 'sometimes|required_if:role,student,university_admin',
+                'major' => 'sometimes|required_if:role,student',
+                'company' => 'sometimes|required_if:role,recruiter',
+                'phone_number' => 'sometimes|required|numeric',
+                'is_mfa_enabled' => 'sometimes|boolean',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            // Update the user with validated data
+            $user->update($request->all());
+
+            return response()->json(['user' => $user], 200);
+        } catch (ModelNotFoundException $e) {
+            // If user not found
+            return response()->json(['message' => 'User not found'], 404);
+        } catch (QueryException $e) {
+            // If there is a database error
+            return response()->json(['message' => 'Database error', 'details' => $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            // For any other errors
+            return response()->json(['message' => 'An error occurred', 'details' => $e->getMessage()], 500);
+        }
+    }
+
 
 
     // public function logout()

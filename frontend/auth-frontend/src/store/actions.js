@@ -15,8 +15,14 @@ export default {
       localStorage.setItem("access_token", response.access_token);
       const user = response.user;
       commit("setUserAndToken", response);
-      commit("setAuthenticatedUser", user[0]);
+      commit("setAuthenticatedUser", user);
       commit("setAuthenticated", true);
+    });
+  },
+  updateUser({ commit }, user) {
+    return api.auth.updateUser(user).then((response) => {
+      const updatedUser = response.user;
+      commit("setUpdatedUser", updatedUser);
     });
   },
   logout({ commit }) {
@@ -25,5 +31,15 @@ export default {
       commit("setAuthenticatedUser", {});
       commit("setAuthenticated", false);
     });
-  }
+  },
+  getMFACodes({ commit }, phoneNumber) {
+    return api.auth.getMFACode(phoneNumber).then((response)=>{
+      commit("setMFACode", response);
+    })
+  },
+  verifyMFACodes({ commit }, code) {
+    return api.auth.verifyMFA(code).then((response)=>{
+      commit("setVerifyMFACode", response);
+    })
+  },
 }

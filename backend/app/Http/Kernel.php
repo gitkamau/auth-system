@@ -3,6 +3,9 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Http\Request;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class Kernel extends HttpKernel
 {
@@ -67,5 +70,19 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\RoleMiddleware::class,
+        'check_mfa' => \App\Http\Middleware\CheckMfa::class,
     ];
+
+
+    protected function configureRateLimiting()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(config('api.rate_limits.api.limit'))
+                        ->by(optional($request->user())->id ?: $request->ip())
+                        ->response(function () {
+                            return response('Too many requests', 429);
+                        });
+        });
+    }
+
 }

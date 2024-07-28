@@ -8,11 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Models\Role;
+use Spatie\Permission\Traits\HasRoles;
 // use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements  MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -28,6 +29,8 @@ class User extends Authenticatable implements  MustVerifyEmail
         'university' => 'required_if:role,student,university_admin',
         'major' => 'required_if:role,student',
         'company' => 'required_if:role,recruiter',
+        'is_mfa_enabled',
+        'phone_number',
     ];
 
     /**
@@ -64,12 +67,17 @@ class User extends Authenticatable implements  MustVerifyEmail
     /**
      * Check if the user has a role.
      */
+    // public function hasRole($role)
+    // {
+    //     if (is_string($role)) {
+    //         return $this->roles()->where('name', $role)->exists();
+    //     }
+
+    //     return $this->roles()->whereIn('name', $role)->exists();
+    // }
+
     public function hasRole($role)
     {
-        if (is_string($role)) {
-            return $this->roles()->where('name', $role)->exists();
-        }
-
-        return $this->roles()->whereIn('name', $role)->exists();
+        return $this->roles()->where('name', $role)->exists();
     }
 }
